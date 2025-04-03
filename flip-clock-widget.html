@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flip Clock Widget</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f5f5f5;
+      font-family: 'Helvetica', Arial, sans-serif;
+    }
+    
+    .clock-container {
+      display: flex;
+      gap: 10px;
+      background-color: #333;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    .flip-card-container {
+      position: relative;
+      width: 60px;
+      height: 90px;
+      perspective: 1000px;
+      overflow: hidden;
+    }
+    
+    .flip-card {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      transform-origin: center center; /* Rotation around center axis */
+    }
+    
+    .flip-card-front, .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      background-color: #444;
+      color: white;
+      font-size: 60px;
+      line-height: 90px;
+      font-weight: bold;
+      border-radius: 5px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Helvetica', Arial, sans-serif;
+    }
+    
+    .flip-card-front {
+      background-color: #444;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .flip-card-back {
+      background-color: #444;
+      transform: rotateX(180deg); /* Positive angle rotation */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .card-divider {
+      position: absolute;
+      width: 100%;
+      height: 1px;
+      background-color: rgba(0, 0, 0, 0.2);
+      top: 50%;
+      z-index: 2;
+    }
+    
+    .colon {
+      font-size: 60px;
+      color: white;
+      line-height: 90px;
+      margin: 0 5px;
+      font-family: 'Helvetica', Arial, sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="clock-container">
+    <div class="flip-card-container">
+      <div id="hourCard1" class="flip-card">
+        <div class="flip-card-front">0</div>
+        <div class="flip-card-back">0</div>
+        <div class="card-divider"></div>
+      </div>
+    </div>
+    <div class="flip-card-container">
+      <div id="hourCard2" class="flip-card">
+        <div class="flip-card-front">0</div>
+        <div class="flip-card-back">0</div>
+        <div class="card-divider"></div>
+      </div>
+    </div>
+    
+    <div class="colon">:</div>
+    
+    <div class="flip-card-container">
+      <div id="minuteCard1" class="flip-card">
+        <div class="flip-card-front">0</div>
+        <div class="flip-card-back">0</div>
+        <div class="card-divider"></div>
+      </div>
+    </div>
+    <div class="flip-card-container">
+      <div id="minuteCard2" class="flip-card">
+        <div class="flip-card-front">0</div>
+        <div class="flip-card-back">0</div>
+        <div class="card-divider"></div>
+      </div>
+    </div>
+    
+    <div class="colon">:</div>
+    
+    <div class="flip-card-container">
+      <div id="secondCard1" class="flip-card">
+        <div class="flip-card-front">0</div>
+        <div class="flip-card-back">0</div>
+        <div class="card-divider"></div>
+      </div>
+    </div>
+    <div class="flip-card-container">
+      <div id="secondCard2" class="flip-card">
+        <div class="flip-card-front">0</div>
+        <div class="flip-card-back">0</div>
+        <div class="card-divider"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Keep track of the current displayed values
+    const currentValues = {
+      hourCard1: '0',
+      hourCard2: '0',
+      minuteCard1: '0',
+      minuteCard2: '0',
+      secondCard1: '0',
+      secondCard2: '0'
+    };
+    
+    function updateClock() {
+      const now = new Date();
+      
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      
+      updateCard('hourCard1', hours[0]);
+      updateCard('hourCard2', hours[1]);
+      updateCard('minuteCard1', minutes[0]);
+      updateCard('minuteCard2', minutes[1]);
+      updateCard('secondCard1', seconds[0]);
+      updateCard('secondCard2', seconds[1]);
+    }
+    
+    function updateCard(cardId, newValue) {
+      if (currentValues[cardId] === newValue) return;
+      
+      const card = document.getElementById(cardId);
+      const frontFace = card.querySelector('.flip-card-front');
+      const backFace = card.querySelector('.flip-card-back');
+      
+      // Update the back face to show the new value
+      backFace.textContent = newValue;
+      
+      // Apply the rotation (positive angle for middle rotation axis)
+      card.style.transform = 'rotateX(180deg)';
+      
+      // After the animation completes
+      setTimeout(() => {
+        // Update the front face with the new value
+        frontFace.textContent = newValue;
+        
+        // Reset the card position without transition
+        card.style.transition = 'none';
+        card.style.transform = 'rotateX(0deg)';
+        
+        // Re-enable the transition after a small delay
+        setTimeout(() => {
+          card.style.transition = 'transform 0.6s';
+        }, 50);
+        
+        // Update the current value tracker
+        currentValues[cardId] = newValue;
+      }, 600);
+    }
+    
+    // Update clock immediately
+    updateClock();
+    
+    // Then update every second
+    setInterval(updateClock, 1000);
+  </script>
+</body>
+</html>
